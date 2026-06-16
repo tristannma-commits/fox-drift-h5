@@ -301,6 +301,47 @@ body{
 .empty-log{text-align:center;padding:40px 20px;color:var(--ink-faint);}
 .empty-log .em{font-size:46px;display:block;margin-bottom:14px;opacity:.6;}
 .empty-log .go{margin-top:16px;color:var(--glow);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.my-bottle{cursor:pointer;transition:.18s;}
+.my-bottle:active{transform:scale(.985);}
+.my-bottle .chev{font-size:12px;color:var(--ink-faint);align-self:center;margin-left:2px;}
+.my-bottle .info .s .newdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--fox);margin-right:5px;box-shadow:0 0 8px var(--fox);vertical-align:middle;animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+
+/* ===== 客态页：回响详情 ===== */
+.echo-detail{padding:2px 2px 4px;}
+.ed-head{display:flex;gap:13px;align-items:flex-start;padding:6px 4px 14px;border-bottom:1px solid rgba(255,255,255,.08);}
+.ed-ic{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:25px;flex-shrink:0;box-shadow:0 6px 16px rgba(0,0,0,.4);}
+.ed-head .ed-meta{flex:1;min-width:0;}
+.ed-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;}
+.ed-title .kind-pill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;font-family:"Noto Sans SC",sans-serif;}
+.ed-title .kind-pill.real{background:rgba(130,230,214,.14);color:var(--glow);border:1px solid rgba(130,230,214,.3);}
+.ed-title .kind-pill.anon{background:rgba(255,255,255,.08);color:var(--ink-dim);border:1px solid rgba(255,255,255,.16);}
+.ed-msg{font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-top:6px;}
+.ed-statline{display:flex;gap:16px;padding:13px 4px 4px;font-size:11.5px;color:var(--ink-dim);}
+.ed-statline b{font-family:"Fraunces",serif;font-size:15px;color:var(--moon);font-weight:500;margin-right:3px;}
+
+.ed-group{margin-top:20px;}
+.ed-gtitle{font-size:11.5px;letter-spacing:.5px;color:var(--ink-dim);margin-bottom:11px;line-height:1.5;display:flex;align-items:flex-start;gap:7px;}
+.ed-gtitle .gi{font-size:14px;flex-shrink:0;}
+.ed-group.strong .ed-gtitle{color:var(--moon-soft);}
+
+.echo-item{display:flex;gap:12px;padding:13px;border-radius:15px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);margin-bottom:10px;}
+.echo-item.hot{background:linear-gradient(135deg,rgba(255,146,72,.14),rgba(255,95,150,.1));border-color:rgba(255,146,72,.32);}
+.ei-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(130,230,214,.12);border:1px solid rgba(130,230,214,.2);}
+.ei-av.anon{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);}
+.ei-body{flex:1;min-width:0;}
+.ei-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.ei-g{font-size:11px;font-weight:400;color:var(--ink-dim);}
+.ei-uid{font-family:"Fraunces",serif;font-size:11.5px;letter-spacing:.5px;color:var(--moon);background:rgba(0,0,0,.25);padding:1px 8px;border-radius:8px;}
+.ei-text{font-size:13px;line-height:1.6;color:var(--ink);margin-top:7px;background:rgba(0,0,0,.18);padding:9px 12px;border-radius:11px;border-left:2px solid var(--glow);}
+.ei-want{font-size:13px;color:var(--ink);margin-top:5px;}
+.ei-want b{color:var(--fox);font-weight:600;}
+.ei-sub{font-size:11.5px;color:var(--ink-dim);margin-top:6px;line-height:1.5;}
+.ei-addback{margin-top:10px;background:linear-gradient(135deg,var(--fox),var(--fox-deep));color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.ei-addback:active{transform:scale(.96);}
+.ei-locked{margin-top:9px;font-size:11.5px;color:var(--ink-faint);display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.18);padding:7px 11px;border-radius:10px;}
+.ed-emptygrp{font-size:12px;color:var(--ink-faint);padding:4px 2px;line-height:1.6;}
+.ed-footnote{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:18px;line-height:1.6;padding:0 8px;}
 
 /* ===== 底部 tab ===== */
 .tabbar{
@@ -504,6 +545,39 @@ const PRESETS = [
   "同好+1就来，一起组团征服排位！"
 ];
 const REACTIONS = ["想认识你","好有缘 ✦","求处搭子","你的瓶太好看了","同好+1","下次一起跳"];
+
+// 回响人物池（客态页：谁回应了我）
+const ECHO_NAMES = [
+  {name:'柚子味的风',g:'female',emoji:'🌼'},
+  {name:'打碟的猫',g:'male',emoji:'🐱'},
+  {name:'kiki',g:'female',emoji:'🦋'},
+  {name:'夜航船',g:'male',emoji:'⚓'},
+  {name:'软糖星球',g:'female',emoji:'🍬'},
+  {name:'老张不熬夜',g:'male',emoji:'🌙'},
+  {name:'阿May',g:'female',emoji:'🐚'},
+  {name:'三七二十一',g:'male',emoji:'🎧'},
+];
+const ECHO_MSGS = [
+  "你的文案戳到我了，刚好也在找搭子，能认识一下吗？",
+  "看你头像就觉得很合拍哈哈，UID 记下了，游戏里见？",
+  "深夜同好+1，我也常常一个人上线，要不组个队？",
+  "被你这句话暖到了，想认真认识你。",
+  "审美在线！想找你一起打卡新套装，方便加个好友吗？",
+];
+function randUID(){return 'XW-'+Math.random().toString(36).slice(2,9).toUpperCase();}
+// 为一个瓶子生成回响明细；匿名瓶别人看不到你的 UID，所以不会有人“复制了你的 UID”
+function genEchoes(anon){
+  const pool=ECHO_NAMES.slice();
+  const take=()=>pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+  const echoes=[];
+  const nMsg=Math.floor(Math.random()*2)+1;            // 实名留言 1-2
+  for(let i=0;i<nMsg&&pool.length;i++){const p=take();echoes.push({kind:'msg',anon:false,name:p.name,emoji:p.emoji,g:p.g,uid:randUID(),text:ECHO_MSGS[Math.floor(Math.random()*ECHO_MSGS.length)]});}
+  const nWant=Math.floor(Math.random()*3)+2;            // 轻互动 2-4，半数匿名
+  for(let i=0;i<nWant&&pool.length;i++){const p=take();const a=Math.random()<.5;echoes.push({kind:'want',anon:a,name:a?null:p.name,emoji:a?null:p.emoji,g:p.g,uid:a?null:randUID(),label:REACTIONS[Math.floor(Math.random()*REACTIONS.length)]});}
+  const copied=[];
+  if(!anon){const nC=Math.floor(Math.random()*2)+1;for(let i=0;i<nC&&pool.length;i++){const p=take();copied.push({kind:'copy',name:p.name,emoji:p.emoji,g:p.g,uid:randUID()});}}
+  return {echoes,copied};
+}
 
 // 海里的陌生人瓶子（盲盒池）
 const STRANGERS = [
@@ -759,14 +833,13 @@ document.getElementById('launchBtn').addEventListener('click',()=>{
   setTimeout(()=>{boat.style.animation='';},1700);
   setTimeout(()=>{
     mask.classList.remove('show');
-    // 沉淀我的瓶
+    // 沉淀我的瓶（带回响明细，供客态页展示）
     const tplIdx=TEMPLATES.findIndex(t=>t.id===state.tpl);
+    const {echoes,copied}=genEchoes(state.anon);
     state.myBottles.unshift({
       tplIdx, msg, anon:state.anon,
-      scooped:Math.floor(Math.random()*8)+3,
-      wantKnow:Math.floor(Math.random()*5)+1,
-      msgs:Math.floor(Math.random()*3),
-      copied:Math.floor(Math.random()*3)
+      scooped:Math.floor(Math.random()*8)+Math.max(echoes.length+copied.length,3),
+      echoes, copied, isNew:true
     });
     toast('🌊 你的瓶已经出海，去航行日记等回响吧');
     switchScene('scene-log');
@@ -779,6 +852,14 @@ document.getElementById('launchBtn').addEventListener('click',()=>{
 });
 
 /* ============ 航行日记 / 回响箱 ============ */
+function bStat(b){
+  return {
+    scooped:b.scooped,
+    want:b.echoes.filter(e=>e.kind==='want').length,
+    msg:b.echoes.filter(e=>e.kind==='msg').length,
+    copy:b.copied.length
+  };
+}
 function renderLog(){
   const box=document.getElementById('logContent');
   const intro=document.getElementById('logIntro');
@@ -788,33 +869,159 @@ function renderLog(){
     document.getElementById('goMake').addEventListener('click',()=>switchScene('scene-make'));
     return;
   }
-  intro.textContent='我帮你打捞了航行途中收到的回响——你的瓶出海后，海那边的人留下了这些。';
-  const totScoop=state.myBottles.reduce((a,b)=>a+b.scooped,0);
-  const totWant=state.myBottles.reduce((a,b)=>a+b.wantKnow,0);
-  const totMsg=state.myBottles.reduce((a,b)=>a+b.msgs,0);
-  const totCopy=state.myBottles.reduce((a,b)=>a+b.copied,0);
+  intro.textContent='我帮你打捞了航行途中收到的回响——你的瓶出海后，海那边的人留下了这些。点开任意一个瓶，看看谁回应了你。';
+  const tot=state.myBottles.reduce((a,b)=>{const s=bStat(b);a.scooped+=s.scooped;a.want+=s.want;a.msg+=s.msg;a.copy+=s.copy;return a;},{scooped:0,want:0,msg:0,copy:0});
   box.innerHTML=`
     <div class="echo-grid">
-      <div class="echo"><div class="v">${totScoop}</div><div class="k">次 · 你的瓶被捞起</div></div>
-      <div class="echo"><div class="v">${totWant}</div><div class="k">个「想认识你」</div></div>
-      <div class="echo"><div class="v">${totMsg}</div><div class="k">条实名留言（可追溯）</div></div>
-      <div class="echo glow"><div class="v">${totCopy}</div><div class="k">人复制了你的 UID</div></div>
+      <div class="echo"><div class="v">${tot.scooped}</div><div class="k">次 · 你的瓶被捞起</div></div>
+      <div class="echo"><div class="v">${tot.want}</div><div class="k">个「想认识你」</div></div>
+      <div class="echo"><div class="v">${tot.msg}</div><div class="k">条实名留言（可追溯）</div></div>
+      <div class="echo glow"><div class="v">${tot.copy}</div><div class="k">人复制了你的 UID</div></div>
     </div>
-    ${totCopy>0?`<div class="log-intro" style="margin-bottom:18px;"><div class="fxmini">💛</div><p>有 <b>${totCopy}</b> 个人把你的 UID 带进了炫舞手游——也许此刻正在好友申请里等你。<b>去游戏看看？</b></p></div>`:''}
-    ${state.myBottles.map(b=>{
-      const t=TEMPLATES[b.tplIdx];
-      return `<div class="my-bottle">
+    ${tot.copy>0?`<div class="log-intro" style="margin-bottom:18px;"><div class="fxmini">💛</div><p>有 <b>${tot.copy}</b> 个人把你的 UID 带进了炫舞手游——也许此刻正在好友申请里等你。<b>点开看看是谁？</b></p></div>`:''}
+    ${state.myBottles.map((b,i)=>{
+      const t=TEMPLATES[b.tplIdx];const s=bStat(b);
+      return `<div class="my-bottle" data-idx="${i}">
         <div class="ic" style="background:${t.g}">${t.emoji}</div>
-        <div class="info"><div class="t">${b.anon?'匿名瓶':'实名瓶'} · ${t.name}模板</div><div class="s">${b.msg.length>20?b.msg.slice(0,20)+'…':b.msg}</div></div>
-        <div class="stat">捞 ${b.scooped} · ♥ ${b.wantKnow}<br>留言 ${b.msgs} · UID ${b.copied}</div>
+        <div class="info">
+          <div class="t">${b.anon?'匿名瓶':'实名瓶'} · ${t.name}模板</div>
+          <div class="s">${b.isNew?'<span class="newdot"></span>':''}${b.msg.length>18?b.msg.slice(0,18)+'…':b.msg}</div>
+        </div>
+        <div class="stat">捞 ${s.scooped} · ♥ ${s.want}<br>留言 ${s.msg} · UID ${s.copy}</div>
+        <div class="chev">›</div>
       </div>`;
     }).join('')}
   `;
 }
+// 事件委托：点击我的瓶 → 客态回响详情
+document.getElementById('logContent').addEventListener('click',e=>{
+  const card=e.target.closest('.my-bottle');if(!card)return;
+  openEchoes(+card.dataset.idx);
+});
+
+/* ============ 客态页：回响详情（谁回应了我的瓶） ============ */
+function gIcon(g){return g==='female'?'♀ 女生':'♂ 男生';}
+function openEchoes(idx){
+  const b=state.myBottles[idx];if(!b)return;
+  b.isNew=false;
+  const t=TEMPLATES[b.tplIdx];const s=bStat(b);
+  const msgs=b.echoes.filter(e=>e.kind==='msg');
+  const wants=b.echoes.filter(e=>e.kind==='want');
+
+  // 1. 复制了你 UID 的人（最强信号，仅实名瓶）
+  const copyHtml=b.copied.length?`
+    <div class="ed-group strong">
+      <div class="ed-gtitle"><span class="gi">💛</span>把你的 UID 带进了炫舞手游 · TA 可能正在好友申请里等你</div>
+      ${b.copied.map(c=>`
+        <div class="echo-item hot">
+          <div class="ei-av">${c.emoji}</div>
+          <div class="ei-body">
+            <div class="ei-name">${c.name}<span class="ei-g">${gIcon(c.g)}</span><span class="ei-uid">${c.uid}</span></div>
+            <div class="ei-sub">复制了你的 UID 去加你 —— 回游戏看看 TA 来没来过。</div>
+            <button class="ei-addback" data-uid="${c.uid}">复制 TA 的 UID 也加 TA</button>
+          </div>
+        </div>`).join('')}
+    </div>`:'';
+
+  // 2. 实名留言（对方亮明 UID，可加回去）
+  const msgHtml=`
+    <div class="ed-group">
+      <div class="ed-gtitle"><span class="gi">✉️</span>实名留言 · 对方亮明了身份，你可以加回去</div>
+      ${msgs.length?msgs.map(m=>`
+        <div class="echo-item">
+          <div class="ei-av">${m.emoji}</div>
+          <div class="ei-body">
+            <div class="ei-name">${m.name}<span class="ei-g">${gIcon(m.g)}</span><span class="ei-uid">${m.uid}</span></div>
+            <div class="ei-text">${m.text}</div>
+            <button class="ei-addback" data-uid="${m.uid}">复制 TA 的 UID 加回去</button>
+          </div>
+        </div>`).join(''):`<div class="ed-emptygrp">还没有人实名留言。想认识你的人留言后，会带着 UID 出现在这里，你就能加回去。</div>`}
+    </div>`;
+
+  // 3. 想认识你 / 轻互动（匿名脱敏，实名可加）
+  const wantHtml=`
+    <div class="ed-group">
+      <div class="ed-gtitle"><span class="gi">♡</span>想认识你 · 轻互动（匿名的人狐狸替你收着）</div>
+      ${wants.length?wants.map(w=>w.anon?`
+        <div class="echo-item">
+          <div class="ei-av anon">🫧</div>
+          <div class="ei-body">
+            <div class="ei-name">一位${gIcon(w.g)}<span class="ei-g">· 匿名递来</span></div>
+            <div class="ei-want">递给你一张「<b>${w.label}</b>」</div>
+            <div class="ei-locked">🔒 TA 选择了匿名，狐狸先替你收着。想认识？等 TA 实名留言，或你也去海里捞捞看。</div>
+          </div>
+        </div>`:`
+        <div class="echo-item">
+          <div class="ei-av">${w.emoji}</div>
+          <div class="ei-body">
+            <div class="ei-name">${w.name}<span class="ei-g">${gIcon(w.g)}</span><span class="ei-uid">${w.uid}</span></div>
+            <div class="ei-want">递给你一张「<b>${w.label}</b>」</div>
+            <button class="ei-addback" data-uid="${w.uid}">复制 TA 的 UID 加回去</button>
+          </div>
+        </div>`).join(''):`<div class="ed-emptygrp">还没有人轻互动。</div>`}
+    </div>`;
+
+  document.getElementById('sheetCard').innerHTML=`
+    <div class="grab"></div>
+    <div class="echo-detail">
+      <div class="ed-head">
+        <div class="ed-ic" style="background:${t.g}">${t.emoji}</div>
+        <div class="ed-meta">
+          <div class="ed-title">${b.anon?'匿名瓶':'实名瓶'}<span class="kind-pill ${b.anon?'anon':'real'}">${b.anon?'身份隐藏':'UID 公开'}</span></div>
+          <div class="ed-msg">“${b.msg}”</div>
+        </div>
+      </div>
+      <div class="ed-statline">
+        <span><b>${s.scooped}</b>次被捞</span>
+        <span><b>${s.want}</b>想认识</span>
+        <span><b>${s.msg}</b>实名留言</span>
+        <span><b>${s.copy}</b>复制UID</span>
+      </div>
+      ${copyHtml}
+      ${msgHtml}
+      ${wantHtml}
+      <div class="ed-footnote">${b.anon?'你这是匿名瓶，海那边的人看不到你的 UID，没法直接复制你——但实名留言你的人亮明了身份，主动权在你手里。':'狐狸只把回应带到你面前，要不要相认、去游戏加好友，都由你决定。'}</div>
+    </div>
+  `;
+  document.getElementById('sheet').classList.add('show');
+  document.getElementById('sheetCard').querySelectorAll('.ei-addback').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const uid=btn.dataset.uid;
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(uid).catch(()=>{});}
+      toast(`已复制 ${uid} · 去炫舞手游搜索加 TA`);
+    });
+  });
+}
+
+/* ============ 预置演示瓶（方便直接查看客态页） ============ */
+function seedDemoBottles(){
+  if(state._seeded)return;state._seeded=true;
+  state.myBottles.push(
+    {tplIdx:0,anon:false,msg:'想找个一起打卡新4S套装的搭子～最好也喜欢拍照',scooped:14,isNew:true,
+     echoes:[
+       {kind:'msg',anon:false,name:'柚子味的风',emoji:'🌼',g:'female',uid:'XW-9F2K7QD',text:'你的文案戳到我了，刚好也在找拍照搭子，能认识一下吗？'},
+       {kind:'msg',anon:false,name:'打碟的猫',emoji:'🐱',g:'male',uid:'XW-3T8L1MN',text:'同好+1，UID 给你了，游戏里组个队？'},
+       {kind:'want',anon:true,name:null,emoji:null,g:'female',uid:null,label:'想认识你'},
+       {kind:'want',anon:false,name:'kiki',emoji:'🦋',g:'female',uid:'XW-5C0P4RB',label:'好有缘 ✦'},
+       {kind:'want',anon:true,name:null,emoji:null,g:'male',uid:null,label:'求处搭子'}
+     ],
+     copied:[
+       {kind:'copy',name:'夜航船',emoji:'⚓',g:'male',uid:'XW-7Q1J9XK'},
+       {kind:'copy',name:'软糖星球',emoji:'🍬',g:'female',uid:'XW-2B6N3WD'}
+     ]},
+    {tplIdx:2,anon:true,msg:'想被温柔地认识，喜欢慢歌和深夜聊天',scooped:8,isNew:false,
+     echoes:[
+       {kind:'msg',anon:false,name:'老张不熬夜',emoji:'🌙',g:'male',uid:'XW-4H7D2VC',text:'匿名也藏不住这份温柔，想认真认识你。'},
+       {kind:'want',anon:true,name:null,emoji:null,g:'female',uid:null,label:'好有缘 ✦'},
+       {kind:'want',anon:false,name:'阿May',emoji:'🐚',g:'female',uid:'XW-8M5K0LT',label:'同好+1'}
+     ],
+     copied:[]}
+  );
+}
 
 /* ============ init ============ */
 function init(){
-  resize();initScene();buildMake();
+  resize();initScene();buildMake();seedDemoBottles();
   document.getElementById('uvCount').textContent=fmtUV(state.uvBase);
   rafT=requestAnimationFrame(loop);
 }
