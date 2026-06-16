@@ -301,9 +301,17 @@ body{
 .empty-log{text-align:center;padding:40px 20px;color:var(--ink-faint);}
 .empty-log .em{font-size:46px;display:block;margin-bottom:14px;opacity:.6;}
 .empty-log .go{margin-top:16px;color:var(--glow);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
-.my-bottle{cursor:pointer;transition:.18s;}
+.my-bottle{cursor:pointer;transition:.18s;flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;}
 .my-bottle:active{transform:scale(.985);}
+.my-bottle .mb-row{display:flex;align-items:center;gap:13px;padding:14px 16px 12px;}
 .my-bottle .chev{font-size:12px;color:var(--ink-faint);align-self:center;margin-left:2px;}
+.my-bottle .mb-cta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:rgba(130,230,214,.08);border-top:1px solid rgba(130,230,214,.16);font-size:12.5px;color:var(--glow);font-weight:600;}
+.my-bottle .mb-cta .arr{font-size:15px;transition:.18s;}
+.my-bottle:active .mb-cta .arr{transform:translateX(3px);}
+.my-bottle .mb-cta .badge{background:var(--fox);color:#fff;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:20px;margin-left:6px;}
+.log-listtitle{font-size:12.5px;color:var(--ink-dim);letter-spacing:.5px;margin:4px 2px 12px;display:flex;align-items:center;gap:7px;}
+.log-listtitle::before{content:"";width:14px;height:1px;background:rgba(255,255,255,.2);}
+.log-listtitle::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08);}
 .my-bottle .info .s .newdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--fox);margin-right:5px;box-shadow:0 0 8px var(--fox);vertical-align:middle;animation:pulse 1.6s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
 
@@ -879,16 +887,23 @@ function renderLog(){
       <div class="echo glow"><div class="v">${tot.copy}</div><div class="k">人复制了你的 UID</div></div>
     </div>
     ${tot.copy>0?`<div class="log-intro" style="margin-bottom:18px;"><div class="fxmini">💛</div><p>有 <b>${tot.copy}</b> 个人把你的 UID 带进了炫舞手游——也许此刻正在好友申请里等你。<b>点开看看是谁？</b></p></div>`:''}
+    <div class="log-listtitle">我发出的瓶 · 点开看谁回应了你</div>
     ${state.myBottles.map((b,i)=>{
       const t=TEMPLATES[b.tplIdx];const s=bStat(b);
+      const respond=s.msg+s.copy;          // 可追溯的实名回应数（实名留言 + 复制UID）
       return `<div class="my-bottle" data-idx="${i}">
-        <div class="ic" style="background:${t.g}">${t.emoji}</div>
-        <div class="info">
-          <div class="t">${b.anon?'匿名瓶':'实名瓶'} · ${t.name}模板</div>
-          <div class="s">${b.isNew?'<span class="newdot"></span>':''}${b.msg.length>18?b.msg.slice(0,18)+'…':b.msg}</div>
+        <div class="mb-row">
+          <div class="ic" style="background:${t.g}">${t.emoji}</div>
+          <div class="info">
+            <div class="t">${b.anon?'匿名瓶':'实名瓶'} · ${t.name}模板</div>
+            <div class="s">${b.isNew?'<span class="newdot"></span>':''}${b.msg.length>18?b.msg.slice(0,18)+'…':b.msg}</div>
+          </div>
+          <div class="stat">捞 ${s.scooped} · ♥ ${s.want}<br>留言 ${s.msg} · UID ${s.copy}</div>
         </div>
-        <div class="stat">捞 ${s.scooped} · ♥ ${s.want}<br>留言 ${s.msg} · UID ${s.copy}</div>
-        <div class="chev">›</div>
+        <div class="mb-cta">
+          <span>👀 看谁实名回应了你${respond>0?`<span class="badge">${respond} 人可加回</span>`:''}</span>
+          <span class="arr">查看 ›</span>
+        </div>
       </div>`;
     }).join('')}
   `;
