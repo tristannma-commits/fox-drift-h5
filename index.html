@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover" />
+<title>狐狸的奇幻漂流日记 · 夏日航行</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:#061226;
+  --deep:#0b2140;
+  --sea:#143a63;
+  --sea-2:#1c4f7f;
+  --moon:#f4d79a;
+  --moon-soft:#fff3d2;
+  --fox:#ff9248;
+  --fox-deep:#e8612a;
+  --glow:#82e6d6;
+  --glow-deep:#3fb6a8;
+  --foam:#d6ecf3;
+  --ink:#eef5ff;
+  --ink-dim:rgba(238,245,255,.62);
+  --ink-faint:rgba(238,245,255,.4);
+  --card:rgba(13,33,58,.72);
+  --card-line:rgba(130,230,214,.22);
+  --shadow:0 24px 60px -18px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:"Noto Sans SC",sans-serif;
+  background:#02060e;
+  color:var(--ink);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  /* 桌面：两侧氛围 */
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #133a5e 0%, transparent 60%),
+    radial-gradient(900px 900px at 80% 120%, #0a2a42 0%, transparent 55%),
+    #02060e;
+}
+
+/* ===== 手机外壳 ===== */
+#phone{
+  position:relative;
+  width:min(440px,100vw);
+  height:min(940px,100vh);
+  overflow:hidden;
+  background:linear-gradient(180deg,#071a33 0%,#0a2444 38%,#103556 70%,#1a4d72 100%);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(130,230,214,.08);
+}
+@media(min-width:480px){ #phone{ border-radius:34px; } }
+
+/* 海面 canvas */
+#sea{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;}
+
+/* grain */
+#phone::after{
+  content:"";position:absolute;inset:0;z-index:40;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== 顶栏 ===== */
+.topbar{
+  position:absolute;top:0;left:0;right:0;z-index:25;
+  padding:calc(env(safe-area-inset-top,0px) + 16px) 20px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  pointer-events:none;
+}
+.brand{pointer-events:auto;}
+.brand .kicker{
+  font-family:"Fraunces",serif;font-style:italic;font-size:12px;letter-spacing:1px;
+  color:var(--glow);opacity:.85;
+}
+.brand h1{
+  font-family:"Noto Serif SC",serif;font-weight:900;font-size:21px;line-height:1.1;
+  letter-spacing:.5px;margin-top:1px;
+  text-shadow:0 2px 18px rgba(0,0,0,.5);
+}
+.brand h1 .sun{color:var(--moon);}
+.uvchip{
+  pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;
+  font-size:10px;color:var(--ink-dim);text-align:right;
+}
+.uvchip .n{font-family:"Fraunces",serif;font-size:16px;color:var(--moon);font-weight:500;}
+
+/* ===== 场景容器 ===== */
+.scene{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;}
+.scene.active{display:flex;animation:fadeUp .5s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+/* ===== 场景：海洋 ===== */
+#scene-sea{justify-content:flex-end;}
+.fox-stage{
+  position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+  width:200px;height:200px;z-index:21;transition:transform .6s cubic-bezier(.2,.8,.2,1);
+}
+.fox-stage.diving{transform:translate(-50%,-30%) scale(.82);}
+.fox-stage svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 14px 24px rgba(0,0,0,.45));}
+.fox-bob{animation:bob 4s ease-in-out infinite;transform-origin:center;}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-9px) rotate(1.5deg);}}
+.fox-speech{
+  position:absolute;left:50%;top:24%;transform:translateX(-50%);
+  background:rgba(255,243,210,.95);color:#3a2410;
+  font-size:13px;font-weight:500;padding:9px 16px;border-radius:16px 16px 16px 4px;
+  white-space:nowrap;z-index:23;box-shadow:0 8px 22px rgba(0,0,0,.4);
+  animation:floaty 5s ease-in-out infinite;
+}
+.fox-speech::after{content:"";position:absolute;left:24px;bottom:-7px;border:7px solid transparent;border-top-color:rgba(255,243,210,.95);border-bottom:0;}
+@keyframes floaty{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-6px);}}
+
+.sea-controls{
+  position:relative;z-index:22;padding:0 22px calc(env(safe-area-inset-bottom,0px) + 92px);
+  display:flex;flex-direction:column;gap:14px;
+}
+.gender-filter{display:flex;gap:9px;justify-content:center;}
+.gchip{
+  flex:0 0 auto;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:500;
+  background:rgba(8,26,48,.55);border:1px solid rgba(214,236,243,.18);color:var(--ink-dim);
+  backdrop-filter:blur(8px);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:5px;
+}
+.gchip.on{background:linear-gradient(135deg,var(--glow-deep),var(--glow));color:#052a26;border-color:transparent;font-weight:700;box-shadow:0 6px 18px -4px rgba(130,230,214,.5);}
+.scoop-btn{
+  position:relative;border:none;cursor:pointer;color:#3a1c08;font-weight:700;
+  font-size:17px;letter-spacing:1px;padding:17px;border-radius:20px;overflow:hidden;
+  background:linear-gradient(135deg,var(--moon-soft),var(--fox) 55%,var(--fox-deep));
+  box-shadow:0 14px 34px -10px rgba(255,146,72,.65), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.scoop-btn .shine{position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation:shine 3.4s ease-in-out infinite;}
+@keyframes shine{0%{left:-60%;}55%,100%{left:130%;}}
+.scoop-btn small{display:block;font-size:11px;font-weight:400;opacity:.7;margin-top:2px;letter-spacing:0;}
+.scoop-btn:active{transform:scale(.97);}
+
+.hint-row{display:flex;justify-content:center;gap:18px;font-size:11px;color:var(--ink-faint);}
+
+/* ===== 漂流瓶卡片 (modal) ===== */
+.sheet{
+  position:absolute;inset:0;z-index:60;display:none;align-items:flex-end;
+  background:rgba(3,10,22,.6);backdrop-filter:blur(3px);
+}
+.sheet.show{display:flex;animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+.sheet-card{
+  width:100%;max-height:90%;overflow-y:auto;
+  background:linear-gradient(180deg,#0e2c4d,#0a2038);
+  border-radius:26px 26px 0 0;border-top:1px solid var(--card-line);
+  box-shadow:var(--shadow);padding:8px 20px calc(env(safe-area-inset-bottom,0px) + 22px);
+  animation:slideUp .42s cubic-bezier(.2,.85,.25,1);
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:none;}}
+.grab{width:42px;height:4px;border-radius:4px;background:rgba(255,255,255,.22);margin:8px auto 14px;}
+
+/* 漂流瓶展示模板 */
+.bottle-card{border-radius:20px;overflow:hidden;position:relative;}
+.bottle-hero{
+  height:172px;position:relative;display:flex;align-items:flex-end;padding:16px;
+  overflow:hidden;
+}
+.bottle-hero .label{
+  position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:1px;
+  background:rgba(0,0,0,.4);padding:4px 10px;border-radius:20px;backdrop-filter:blur(4px);
+}
+.bottle-hero .avatar{
+  width:60px;height:60px;border-radius:18px;border:2.5px solid rgba(255,255,255,.85);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 6px 16px rgba(0,0,0,.4);flex-shrink:0;
+}
+.bottle-hero .who{margin-left:13px;}
+.bottle-hero .who .nm{font-family:"Noto Serif SC",serif;font-weight:700;font-size:18px;text-shadow:0 2px 8px rgba(0,0,0,.5);}
+.bottle-hero .who .meta{font-size:11px;opacity:.85;margin-top:3px;display:flex;gap:7px;}
+.bottle-hero .who .meta span{background:rgba(255,255,255,.16);padding:2px 8px;border-radius:10px;backdrop-filter:blur(4px);}
+.asset-badge{position:absolute;left:14px;top:12px;font-size:10px;font-weight:700;letter-spacing:.5px;color:#fff;background:linear-gradient(135deg,#ff5fa2,#ffb347);padding:4px 9px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.3);}
+
+.bottle-body{padding:16px 4px 4px;}
+.bottle-msg{
+  font-size:15px;line-height:1.75;color:var(--ink);
+  padding:14px 16px;border-radius:14px;position:relative;
+  background:rgba(130,230,214,.07);border:1px solid rgba(130,230,214,.16);
+}
+.bottle-msg::before{content:"“";position:absolute;left:6px;top:-6px;font-family:"Fraunces",serif;font-size:40px;color:var(--glow);opacity:.4;}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px;}
+.tag{font-size:11.5px;color:var(--glow);background:rgba(130,230,214,.1);border:1px solid rgba(130,230,214,.25);padding:4px 11px;border-radius:20px;}
+
+/* 三层互动 */
+.layer{margin-top:20px;}
+.layer-title{font-size:11px;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:9px;display:flex;align-items:center;gap:7px;}
+.layer-title::before{content:"";width:14px;height:1px;background:var(--glow);opacity:.6;}
+.react-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.react{
+  font-size:13.5px;font-weight:500;padding:12px 10px;border-radius:13px;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--ink);
+  transition:.18s;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.react:active{transform:scale(.96);}
+.react.done{background:linear-gradient(135deg,var(--fox),var(--fox-deep));color:#fff;border-color:transparent;}
+.like-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.like-btn{
+  display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;
+  padding:9px 16px;border-radius:30px;cursor:pointer;color:#ff9bbf;
+  background:rgba(255,95,150,.1);border:1px solid rgba(255,95,150,.3);transition:.18s;
+}
+.like-btn.liked{background:linear-gradient(135deg,#ff5f96,#ff8f6b);color:#fff;border-color:transparent;}
+.like-btn:active{transform:scale(.94);}
+
+/* 实名留言 */
+.msg-box{margin-top:8px;}
+.msg-box .warn{font-size:11px;color:var(--moon);display:flex;align-items:center;gap:6px;margin-bottom:8px;opacity:.9;}
+.msg-input{display:flex;gap:8px;}
+.msg-input input{
+  flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;padding:11px 14px;color:var(--ink);font-size:13.5px;font-family:inherit;
+}
+.msg-input input:focus{outline:none;border-color:var(--glow);}
+.msg-input input::placeholder{color:var(--ink-faint);}
+.send-btn{background:var(--glow);color:#052a26;border:none;border-radius:12px;padding:0 16px;font-weight:700;font-size:13.5px;cursor:pointer;}
+
+/* 复制UID收口 */
+.uid-cta{
+  margin-top:20px;border-radius:16px;padding:16px;
+  background:linear-gradient(135deg,rgba(255,146,72,.16),rgba(255,95,150,.12));
+  border:1px solid rgba(255,146,72,.3);
+}
+.uid-cta .lead{font-size:13px;color:var(--moon-soft);line-height:1.6;margin-bottom:11px;}
+.uid-cta .lead b{color:var(--fox);font-weight:700;}
+.uid-row{display:flex;gap:9px;}
+.uid-pill{flex:1;background:rgba(0,0,0,.28);border:1px dashed rgba(255,146,72,.4);border-radius:11px;padding:11px 14px;font-family:"Fraunces",serif;font-size:14px;letter-spacing:.5px;color:var(--moon);display:flex;align-items:center;justify-content:space-between;}
+.copy-btn{background:linear-gradient(135deg,var(--fox),var(--fox-deep));color:#fff;border:none;border-radius:11px;padding:0 20px;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap;}
+.copy-btn:active{transform:scale(.95);}
+
+.again-btn{
+  width:100%;margin-top:16px;padding:14px;border-radius:15px;cursor:pointer;font-size:15px;font-weight:600;
+  background:rgba(130,230,214,.1);border:1px solid var(--card-line);color:var(--glow);
+}
+.again-btn:active{transform:scale(.98);}
+.anon-note{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:14px;line-height:1.6;}
+
+/* ===== 场景：投瓶 ===== */
+#scene-make{padding:calc(env(safe-area-inset-top,0px) + 78px) 20px 110px;overflow-y:auto;}
+.sec-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:17px;margin-bottom:4px;}
+.sec-sub{font-size:12px;color:var(--ink-dim);margin-bottom:18px;line-height:1.6;}
+.step{margin-bottom:22px;}
+.step .lbl{font-size:12px;letter-spacing:1px;color:var(--glow);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.step .lbl .num{width:20px;height:20px;border-radius:50%;background:var(--glow);color:#052a26;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.tpl{
+  aspect-ratio:3/4;border-radius:14px;cursor:pointer;position:relative;overflow:hidden;
+  border:2px solid transparent;transition:.2s;display:flex;align-items:flex-end;padding:8px;
+}
+.tpl span{font-size:10px;font-weight:600;background:rgba(0,0,0,.45);padding:2px 7px;border-radius:8px;backdrop-filter:blur(3px);}
+.tpl.on{border-color:var(--moon);transform:translateY(-3px);box-shadow:0 10px 22px -8px rgba(244,215,154,.6);}
+.tpl.on::after{content:"✓";position:absolute;top:6px;right:6px;width:20px;height:20px;background:var(--moon);color:#3a2410;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+.preset-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.preset{font-size:12px;padding:7px 12px;border-radius:20px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:var(--ink-dim);transition:.18s;}
+.preset.on{background:var(--moon);color:#3a2410;border-color:transparent;font-weight:600;}
+#msgArea{
+  width:100%;min-height:84px;resize:none;border-radius:14px;padding:13px 15px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--ink);
+  font-family:inherit;font-size:14px;line-height:1.6;
+}
+#msgArea:focus{outline:none;border-color:var(--glow);}
+.anon-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);}
+.anon-toggle .t{font-size:14px;font-weight:500;}
+.anon-toggle .d{font-size:11px;color:var(--ink-faint);margin-top:3px;}
+.switch{width:48px;height:27px;border-radius:30px;background:rgba(255,255,255,.18);position:relative;cursor:pointer;transition:.25s;flex-shrink:0;}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.25s;}
+.switch.on{background:var(--glow);}
+.switch.on::after{left:24px;}
+.launch-btn{
+  width:100%;margin-top:8px;padding:16px;border-radius:18px;cursor:pointer;border:none;
+  font-size:16px;font-weight:700;letter-spacing:1px;color:#052a26;
+  background:linear-gradient(135deg,var(--glow),var(--moon));
+  box-shadow:0 14px 30px -10px rgba(130,230,214,.5);
+}
+.launch-btn:active{transform:scale(.98);}
+
+/* ===== 场景：航行日记 / 回响箱 ===== */
+#scene-log{padding:calc(env(safe-area-inset-top,0px) + 78px) 20px 110px;overflow-y:auto;}
+.log-intro{
+  background:linear-gradient(135deg,rgba(255,146,72,.12),rgba(130,230,214,.08));
+  border:1px solid rgba(244,215,154,.2);border-radius:18px;padding:16px;margin-bottom:18px;
+  display:flex;gap:13px;align-items:center;
+}
+.log-intro .fxmini{font-size:34px;flex-shrink:0;}
+.log-intro p{font-size:13px;line-height:1.65;color:var(--moon-soft);}
+.log-intro p b{color:var(--fox);}
+.echo-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px;}
+.echo{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:15px;backdrop-filter:blur(8px);}
+.echo .v{font-family:"Fraunces",serif;font-size:30px;color:var(--moon);line-height:1;}
+.echo .k{font-size:12px;color:var(--ink-dim);margin-top:7px;}
+.echo.glow{border-color:rgba(130,230,214,.3);}
+.echo.glow .v{color:var(--glow);}
+.my-bottle{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;margin-bottom:11px;display:flex;align-items:center;gap:13px;}
+.my-bottle .ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.my-bottle .info{flex:1;}
+.my-bottle .info .t{font-size:14px;font-weight:600;}
+.my-bottle .info .s{font-size:11.5px;color:var(--ink-dim);margin-top:3px;}
+.my-bottle .stat{font-family:"Fraunces",serif;font-size:13px;color:var(--moon);text-align:right;line-height:1.5;}
+.empty-log{text-align:center;padding:40px 20px;color:var(--ink-faint);}
+.empty-log .em{font-size:46px;display:block;margin-bottom:14px;opacity:.6;}
+.empty-log .go{margin-top:16px;color:var(--glow);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+
+/* ===== 底部 tab ===== */
+.tabbar{
+  position:absolute;left:0;right:0;bottom:0;z-index:50;
+  display:flex;padding:8px 14px calc(env(safe-area-inset-bottom,0px) + 10px);
+  background:linear-gradient(180deg,rgba(6,18,38,0),rgba(6,18,38,.92) 40%);
+  backdrop-filter:blur(6px);
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--ink-faint);transition:.2s;padding:6px 0;}
+.tab .ti{font-size:21px;line-height:1;}
+.tab .tt{font-size:10.5px;letter-spacing:.5px;}
+.tab.on{color:var(--moon);}
+.tab.on .ti{filter:drop-shadow(0 0 10px rgba(244,215,154,.6));transform:translateY(-2px);}
+
+/* ===== 捞瓶 打捞遮罩 ===== */
+.diving-mask{position:absolute;inset:0;z-index:55;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(4,14,30,.55);backdrop-filter:blur(2px);}
+.diving-mask.show{display:flex;animation:fade .3s;}
+.ripple{width:90px;height:90px;border-radius:50%;border:2px solid var(--glow);animation:rip 1.1s ease-out infinite;position:absolute;}
+.ripple:nth-child(2){animation-delay:.35s;}
+.ripple:nth-child(3){animation-delay:.7s;}
+@keyframes rip{0%{transform:scale(.3);opacity:.9;}100%{transform:scale(2.2);opacity:0;}}
+.diving-txt{position:relative;z-index:2;margin-top:130px;font-size:14px;color:var(--moon-soft);font-family:"Ma Shan Zheng",cursive;letter-spacing:2px;font-size:20px;}
+
+/* ===== toast ===== */
+#toast{
+  position:absolute;left:50%;bottom:130px;transform:translateX(-50%) translateY(20px);
+  z-index:80;background:rgba(8,24,44,.95);color:var(--ink);border:1px solid var(--card-line);
+  padding:11px 20px;border-radius:30px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:80%;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* 起航动画遮罩 */
+.sail-mask{position:absolute;inset:0;z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0a2444,#1a4d72);}
+.sail-mask.show{display:flex;animation:fade .4s;}
+.sail-boat{font-size:60px;animation:sailaway 2.6s ease-in forwards;}
+@keyframes sailaway{0%{transform:translateX(0) translateY(0) rotate(-4deg) scale(1);opacity:1;}60%{transform:translateX(40px) translateY(-10px) rotate(4deg) scale(.8);opacity:1;}100%{transform:translateX(160px) translateY(-40px) rotate(8deg) scale(.3);opacity:0;}}
+.sail-txt{margin-top:24px;text-align:center;}
+.sail-txt .big{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;color:var(--moon-soft);}
+.sail-txt .sm{font-size:12.5px;color:var(--ink-dim);margin-top:8px;line-height:1.6;}
+.sail-dots{margin-top:18px;font-size:13px;color:var(--glow);}
+</style>
+</head>
+<body>
+<div id="phone">
+  <canvas id="sea"></canvas>
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="kicker">QQ炫舞手游 · Summer Voyage</div>
+      <h1>狐狸的奇幻<span class="sun">漂流</span>日记</h1>
+    </div>
+    <div class="uvchip">
+      <div>今日已出海</div>
+      <div class="n" id="uvCount">9.2w</div>
+    </div>
+  </div>
+
+  <!-- 场景1：海洋 -->
+  <section class="scene active" id="scene-sea">
+    <div class="fox-speech" id="foxSpeech">嗨，要我帮你捞一个有缘人吗？</div>
+    <div class="fox-stage" id="foxStage">
+      <svg viewBox="0 0 200 200">
+        <g class="fox-bob">
+          <!-- 月牙小船 -->
+          <path d="M40 138 Q100 178 160 138 Q140 150 100 152 Q60 150 40 138 Z" fill="#7a4a2a"/>
+          <path d="M44 136 Q100 168 156 136 Q138 146 100 148 Q62 146 44 136 Z" fill="#9c6238"/>
+          <rect x="97" y="92" width="3.5" height="44" rx="1.5" fill="#7a4a2a"/>
+          <path d="M101 96 L132 116 L101 130 Z" fill="#ffe3c2"/>
+          <path d="M99 96 L70 114 L99 128 Z" fill="#ffd0a8"/>
+          <!-- 狐狸身体 -->
+          <ellipse cx="84" cy="120" rx="26" ry="20" fill="#ff9248"/>
+          <!-- 尾巴 -->
+          <path d="M58 122 Q34 116 30 96 Q46 110 62 110 Z" fill="#ff9248"/>
+          <path d="M40 100 Q34 110 32 98 Q40 96 44 102 Z" fill="#fff4e6"/>
+          <!-- 头 -->
+          <circle cx="84" cy="96" r="20" fill="#ff9248"/>
+          <!-- 耳朵 -->
+          <path d="M70 84 L66 64 L82 78 Z" fill="#ff9248"/>
+          <path d="M98 84 L102 64 L86 78 Z" fill="#ff9248"/>
+          <path d="M71 80 L69 70 L78 78 Z" fill="#3a2018"/>
+          <path d="M97 80 L99 70 L90 78 Z" fill="#3a2018"/>
+          <!-- 脸白 -->
+          <ellipse cx="84" cy="100" rx="13" ry="11" fill="#fff4e6"/>
+          <!-- 眼 -->
+          <circle cx="77" cy="94" r="2.6" fill="#2a1810"/>
+          <circle cx="91" cy="94" r="2.6" fill="#2a1810"/>
+          <!-- 鼻 -->
+          <ellipse cx="84" cy="101" rx="2.8" ry="2.1" fill="#2a1810"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="sea-controls">
+      <div class="gender-filter" id="genderFilter">
+        <div class="gchip on" data-g="all">🌊 都看看</div>
+        <div class="gchip" data-g="female">♀ 只看女生</div>
+        <div class="gchip" data-g="male">♂ 只看男生</div>
+      </div>
+      <button class="scoop-btn" id="scoopBtn">
+        <span class="shine"></span>
+        让狐狸帮我捞一个
+        <small>盲盒打捞 · 不知道会遇见谁</small>
+      </button>
+      <div class="hint-row">
+        <span>🍾 海面漂着 1.2w 个瓶子</span>
+        <span>✨ 捞到心动的就去加好友</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景2：投瓶 -->
+  <section class="scene" id="scene-make">
+    <div class="sec-title">做一个属于你的漂流瓶</div>
+    <div class="sec-sub">写下想说的话，丢进海里，等狐狸带回回响。可以匿名展示，但想认识你的人会顺着 UID 找来。</div>
+
+    <div class="step">
+      <div class="lbl"><span class="num">1</span>选一个展示模板</div>
+      <div class="tpl-grid" id="tplGrid"></div>
+    </div>
+
+    <div class="step">
+      <div class="lbl"><span class="num">2</span>写文案 · 或用预设</div>
+      <div class="preset-row" id="presetRow"></div>
+      <textarea id="msgArea" placeholder="说点能让陌生人心动的话…比如你的搭子需求、最近在练的舞、想找什么样的人"></textarea>
+    </div>
+
+    <div class="step">
+      <div class="lbl"><span class="num">3</span>是否匿名出海</div>
+      <div class="anon-toggle">
+        <div>
+          <div class="t" id="anonLabel">实名出海（露出我的 UID）</div>
+          <div class="d">匿名也能被捞、被轻互动；但留言/加你的人始终实名可追溯</div>
+        </div>
+        <div class="switch" id="anonSwitch"></div>
+      </div>
+    </div>
+
+    <button class="launch-btn" id="launchBtn">⛵ 让它启航</button>
+  </section>
+
+  <!-- 场景3：航行日记 -->
+  <section class="scene" id="scene-log">
+    <div class="log-intro">
+      <div class="fxmini">🦊</div>
+      <p id="logIntro">我帮你打捞了航行途中收到的回响——你的瓶出海后，海那边的人留下了这些。</p>
+    </div>
+    <div id="logContent"></div>
+  </section>
+
+  <!-- 打捞遮罩 -->
+  <div class="diving-mask" id="divingMask">
+    <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+    <div class="diving-txt" id="divingTxt">狐狸潜入海里了…</div>
+  </div>
+
+  <!-- 起航遮罩 -->
+  <div class="sail-mask" id="sailMask">
+    <div class="sail-boat">⛵</div>
+    <div class="sail-txt">
+      <div class="big" id="sailBig">ACE 正在审核你的瓶…</div>
+      <div class="sm" id="sailSm">先审后漂 · 等待启航许可，通过即入海</div>
+    </div>
+    <div class="sail-dots" id="sailDots">● ○ ○</div>
+  </div>
+
+  <!-- 漂流瓶 sheet -->
+  <div class="sheet" id="sheet">
+    <div class="sheet-card" id="sheetCard"></div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast"></div>
+
+  <!-- 底部 tab -->
+  <nav class="tabbar">
+    <div class="tab on" data-scene="scene-sea"><span class="ti">🌊</span><span class="tt">海洋</span></div>
+    <div class="tab" data-scene="scene-make"><span class="ti">🍾</span><span class="tt">做瓶</span></div>
+    <div class="tab" data-scene="scene-log"><span class="ti">📖</span><span class="tt">航行日记</span></div>
+  </nav>
+</div>
+
+<script>
+"use strict";
+
+/* ============ 数据 ============ */
+const TEMPLATES = [
+  {id:'t1',name:'极昼',g:'linear-gradient(160deg,#ff9a5a,#ff5f96)',emoji:'🌅'},
+  {id:'t2',name:'深海',g:'linear-gradient(160deg,#1f6f8b,#0a2a4a)',emoji:'🌊'},
+  {id:'t3',name:'月光',g:'linear-gradient(160deg,#f4d79a,#b98be0)',emoji:'🌙'},
+  {id:'t4',name:'珊瑚',g:'linear-gradient(160deg,#ff7eb3,#ff9a5a)',emoji:'🪸'},
+  {id:'t5',name:'极光',g:'linear-gradient(160deg,#5fe6c4,#5f8bff)',emoji:'🌌'},
+  {id:'t6',name:'霓虹',g:'linear-gradient(160deg,#c77dff,#5fb8ff)',emoji:'💠'},
+];
+const PRESETS = [
+  "想找个一起打卡新4S套装的搭子～",
+  "深夜上线，求个能连麦聊天的有缘人。",
+  "我舞跳得一般，但很会逗你笑 :)",
+  "CPDD，认真处对象那种。",
+  "同好+1就来，一起组团征服排位！"
+];
+const REACTIONS = ["想认识你","好有缘 ✦","求处搭子","你的瓶太好看了","同好+1","下次一起跳"];
+
+// 海里的陌生人瓶子（盲盒池）
+const STRANGERS = [
+  {anon:false,uid:"XW-7H3K9P",name:"halo酱",g:'female',asset:'限定·极光精灵',tpl:4,emoji:'🧚',msg:"刚抽到极光套装就来海边显摆啦，有没有同款审美的姐妹一起拍照？舞步可以慢慢练，主要想交朋友～",tags:['#拍照搭子','#极光控','#夜猫子']},
+  {anon:true,uid:"XW-2M8Q4D",name:"匿名漂流者",g:'male',asset:'典藏·墨羽',tpl:1,emoji:'🌑',msg:"一个人跳了三年，最近有点想找人组双人舞。不太会说话，但会很认真对待每一个搭子。",tags:['#双人舞','#慢热','#长期']},
+  {anon:false,uid:"XW-5T1J7B",name:"奶盖不加冰",g:'female',asset:'节日·星河祭',tpl:2,emoji:'🌊',msg:"海风好咸，但我的心很甜。找个能陪我刷日常、偶尔连麦吐槽的人，性别无所谓，处得来最重要。",tags:['#日常搭子','#连麦','#随缘']},
+  {anon:false,uid:"XW-9K4F2C",name:"阿岩",g:'male',asset:'武侠·孤鸿',tpl:5,emoji:'🌌',msg:"排位卡在钻石上不去，急需一个carry我的大佬，或者一起菜的快乐玩家。我请喝奶茶（游戏里的）。",tags:['#排位','#上分','#快乐至上']},
+  {anon:true,uid:"XW-6P0L3X",name:"匿名漂流者",g:'female',asset:'梦幻·棉花糖',tpl:3,emoji:'🌙',msg:"想被温柔地认识。喜欢慢歌、古风和深夜聊天。如果你也是个温柔的人，给我递个话吧。",tags:['#古风','#深夜','#温柔']},
+  {anon:false,uid:"XW-3D7N5V",name:"电子鱼丸",g:'male',asset:'潮流·涂鸦街',tpl:6,emoji:'💠',msg:"打碟、跳街舞、爱整活。找个一样不正经的搭子，每天给彼此的生活加点电。",tags:['#街舞','#整活','#电子人']},
+];
+
+/* ============ 状态 ============ */
+const state = {
+  scene:'scene-sea',
+  gender:'all',
+  scoopIndex:0,
+  liked:false,
+  reacted:new Set(),
+  // 投瓶
+  tpl:null, preset:null, anon:false,
+  myBottles:[],   // {tpl, msg, anon, scooped, wantKnow, msgs, copied}
+  uvBase:92000,
+};
+
+/* ============ 海面 canvas ============ */
+const cv=document.getElementById('sea'), cx=cv.getContext('2d');
+let W,H,DPR=Math.min(window.devicePixelRatio||1,2);
+function resize(){
+  const r=document.getElementById('phone').getBoundingClientRect();
+  W=r.width;H=r.height;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize',resize);
+
+const stars=[],bottles=[];
+function initScene(){
+  stars.length=0;bottles.length=0;
+  for(let i=0;i<60;i++)stars.push({x:Math.random()*W,y:Math.random()*H*0.5,r:Math.random()*1.4+.3,tw:Math.random()*6.28});
+  for(let i=0;i<7;i++)bottles.push({x:Math.random()*W,y:H*0.62+Math.random()*H*0.3,ph:Math.random()*6.28,sp:.2+Math.random()*.3,sc:.6+Math.random()*.5});
+}
+function drawSea(t){
+  cx.clearRect(0,0,W,H);
+  const horizon=H*0.5;
+  // 月亮
+  const mx=W*0.76,my=H*0.16;
+  const mg=cx.createRadialGradient(mx,my,4,mx,my,60);
+  mg.addColorStop(0,'rgba(255,243,210,.95)');mg.addColorStop(.5,'rgba(244,215,154,.25)');mg.addColorStop(1,'rgba(244,215,154,0)');
+  cx.fillStyle=mg;cx.beginPath();cx.arc(mx,my,60,0,6.28);cx.fill();
+  cx.fillStyle='#fff3d2';cx.beginPath();cx.arc(mx,my,24,0,6.28);cx.fill();
+  cx.fillStyle='rgba(11,33,64,.5)';cx.beginPath();cx.arc(mx+9,my-5,21,0,6.28);cx.fill();
+  // 星星
+  stars.forEach(s=>{const a=.4+Math.sin(t*.002+s.tw)*.4;cx.fillStyle=`rgba(255,255,255,${a})`;cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.28);cx.fill();});
+  // 海平面光带
+  const og=cx.createLinearGradient(0,horizon,0,H);
+  og.addColorStop(0,'rgba(31,86,128,.0)');og.addColorStop(.15,'rgba(31,86,128,.5)');og.addColorStop(1,'rgba(8,30,56,.9)');
+  cx.fillStyle=og;cx.fillRect(0,horizon,W,H-horizon);
+  // 月光倒影
+  cx.save();cx.globalAlpha=.5;
+  for(let i=0;i<10;i++){const yy=horizon+10+i*((H-horizon)/11);const ww=10+i*7+Math.sin(t*.003+i)*6;cx.fillStyle='rgba(255,243,210,'+(.16-i*0.012)+')';cx.fillRect(mx-ww/2,yy,ww,2.4);}
+  cx.restore();
+  // 多层波浪
+  const waves=[{y:horizon,a:7,c:'rgba(60,182,168,.18)',sp:.0011,len:.012},{y:horizon+30,a:11,c:'rgba(31,86,128,.5)',sp:.0016,len:.009},{y:horizon+70,a:15,c:'rgba(14,44,76,.7)',sp:.0021,len:.007}];
+  waves.forEach(w=>{cx.fillStyle=w.c;cx.beginPath();cx.moveTo(0,H);cx.lineTo(0,w.y);for(let x=0;x<=W;x+=8){cx.lineTo(x,w.y+Math.sin(x*w.len+t*w.sp)*w.a);}cx.lineTo(W,H);cx.closePath();cx.fill();});
+  // 漂流瓶
+  bottles.forEach(b=>{
+    b.x+=b.sp;if(b.x>W+20)b.x=-20;
+    const by=b.y+Math.sin(t*.002+b.ph)*5;
+    cx.save();cx.translate(b.x,by);cx.scale(b.sc,b.sc);cx.rotate(Math.sin(t*.001+b.ph)*.2);
+    cx.fillStyle='rgba(130,230,214,.7)';cx.strokeStyle='rgba(214,236,243,.5)';cx.lineWidth=1;
+    cx.beginPath();cx.roundRect(-5,-12,10,22,4);cx.fill();
+    cx.fillStyle='rgba(120,74,42,.9)';cx.fillRect(-2.5,-16,5,5);
+    cx.fillStyle='rgba(255,243,210,.8)';cx.fillRect(-3,-4,6,8);
+    cx.restore();
+  });
+}
+let rafT=0;
+function loop(t){drawSea(t);rafT=requestAnimationFrame(loop);}
+
+/* ============ 工具 ============ */
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2200);}
+function fmtUV(n){return n>=10000?(n/10000).toFixed(1)+'w':n+'';}
+
+/* ============ 场景切换 ============ */
+function switchScene(id){
+  state.scene=id;
+  document.querySelectorAll('.scene').forEach(s=>s.classList.toggle('active',s.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.scene===id));
+  if(id==='scene-log')renderLog();
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchScene(t.dataset.scene)));
+
+/* ============ 海洋：性别筛选 ============ */
+const foxLines={
+  all:"嗨，要我帮你捞一个有缘人吗？",
+  female:"想认识女生？我去帮你留意～",
+  male:"想认识男生？交给我！"
+};
+document.getElementById('genderFilter').addEventListener('click',e=>{
+  const chip=e.target.closest('.gchip');if(!chip)return;
+  document.querySelectorAll('.gchip').forEach(c=>c.classList.remove('on'));
+  chip.classList.add('on');state.gender=chip.dataset.g;
+  document.getElementById('foxSpeech').textContent=foxLines[state.gender];
+});
+
+/* ============ 捞瓶 ============ */
+const divingLines=["狐狸潜入海里了…","在浪花里翻找…","捞到一个瓶子！"];
+document.getElementById('scoopBtn').addEventListener('click',scoop);
+function scoop(){
+  const pool=STRANGERS.filter(s=>state.gender==='all'||s.g===state.gender);
+  if(!pool.length){toast('这片海暂时没有符合的瓶子，换个筛选试试');return;}
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  // 动画
+  const mask=document.getElementById('divingMask');
+  const fox=document.getElementById('foxStage');
+  fox.classList.add('diving');mask.classList.add('show');
+  let i=0;const dt=document.getElementById('divingTxt');dt.textContent=divingLines[0];
+  const iv=setInterval(()=>{i++;if(divingLines[i])dt.textContent=divingLines[i];},420);
+  setTimeout(()=>{
+    clearInterval(iv);mask.classList.remove('show');fox.classList.remove('diving');
+    openBottle(pick);
+    // UV +涨
+    state.uvBase+=Math.floor(Math.random()*30+10);
+    document.getElementById('uvCount').textContent=fmtUV(state.uvBase);
+  },1350);
+}
+
+function openBottle(s){
+  state.liked=false;state.reacted=new Set();
+  const tpl=TEMPLATES[s.tpl];
+  const reactHtml=REACTIONS.map(r=>`<div class="react" data-r="${r}">${r}</div>`).join('');
+  const who=s.anon
+    ? `<div class="nm">匿名漂流者</div><div class="meta"><span>${s.g==='female'?'♀ 女生':'♂ 男生'}</span><span>🔒 隐藏身份</span></div>`
+    : `<div class="nm">${s.name}</div><div class="meta"><span>${s.g==='female'?'♀ 女生':'♂ 男生'}</span><span>UID 已公开</span></div>`;
+  const uidBlock = s.anon
+    ? `<div class="uid-cta">
+         <div class="lead">这是个<b>匿名瓶</b>。狐狸的规矩：可以匿名展示，但想<b>主动认识 TA</b> 得先亮明自己——给 TA 发一条实名留言，是认识的开始。</div>
+       </div>`
+    : `<div class="uid-cta">
+         <div class="lead">心动了？把 TA 的 UID 复制进<b>炫舞手游</b>加好友，剩下的相遇在游戏里发生。</div>
+         <div class="uid-row">
+           <div class="uid-pill"><span>${s.uid}</span><span style="opacity:.5">UID</span></div>
+           <button class="copy-btn" id="copyBtn">复制并去加好友</button>
+         </div>
+       </div>`;
+
+  document.getElementById('sheetCard').innerHTML=`
+    <div class="grab"></div>
+    <div class="bottle-card">
+      <div class="bottle-hero" style="background:${tpl.g}">
+        <div class="asset-badge">4S · ${s.asset}</div>
+        <span class="label">展示模板 · ${tpl.name}</span>
+        <div class="avatar" style="background:${tpl.g}">${s.emoji}</div>
+        <div class="who">${who}</div>
+      </div>
+    </div>
+    <div class="bottle-body">
+      <div class="bottle-msg">${s.msg}</div>
+      <div class="tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+
+      <div class="layer">
+        <div class="layer-title">轻轻表达好感 · 匿名也能用</div>
+        <div class="like-row">
+          <div class="like-btn" id="likeBtn">♡ <span id="likeTxt">点个赞</span></div>
+        </div>
+        <div class="react-grid" id="reactGrid">${reactHtml}</div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-title">想多说两句 · 留言需实名</div>
+        <div class="msg-box">
+          <div class="warn">⚠ 留言会带上你的 UID（可追溯），是认识的诚意，也是 TA 的安心</div>
+          <div class="msg-input">
+            <input id="leaveMsg" maxlength="40" placeholder="给 TA 留一句实名的话…">
+            <button class="send-btn" id="sendMsgBtn">投递</button>
+          </div>
+        </div>
+      </div>
+
+      ${uidBlock}
+
+      <button class="again-btn" id="againBtn">🦊 让狐狸再捞一个</button>
+      <div class="anon-note">H5 只负责把心动的人带到你面前，真正的聊天 / 处搭子在炫舞手游里发生。</div>
+    </div>
+  `;
+  document.getElementById('sheet').classList.add('show');
+
+  // 绑定
+  document.getElementById('likeBtn').addEventListener('click',e=>{
+    state.liked=!state.liked;e.currentTarget.classList.toggle('liked',state.liked);
+    e.currentTarget.querySelector('span').textContent=state.liked?'已心动':'点个赞';
+    e.currentTarget.firstChild.textContent=state.liked?'♥ ':'♡ ';
+  });
+  document.getElementById('reactGrid').addEventListener('click',e=>{
+    const r=e.target.closest('.react');if(!r)return;
+    const v=r.dataset.r;
+    if(state.reacted.has(v)){state.reacted.delete(v);r.classList.remove('done');}
+    else{state.reacted.add(v);r.classList.add('done');toast(`狐狸已替你递上「${v}」`);}
+  });
+  document.getElementById('sendMsgBtn').addEventListener('click',()=>{
+    const inp=document.getElementById('leaveMsg');const v=inp.value.trim();
+    if(!v){toast('写点什么再投递吧～');return;}
+    inp.value='';inp.placeholder='已实名投递到 TA 的回响箱 ✓';
+    toast('留言已实名投递 · TA 会在回响箱看到你');
+  });
+  const copyBtn=document.getElementById('copyBtn');
+  if(copyBtn)copyBtn.addEventListener('click',()=>{
+    const text=s.uid;
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).catch(()=>{});}
+    toast(`已复制 ${text} · 去炫舞手游搜索添加好友`);
+  });
+  document.getElementById('againBtn').addEventListener('click',()=>{
+    document.getElementById('sheet').classList.remove('show');
+    setTimeout(scoop,260);
+  });
+}
+// 点遮罩关闭
+document.getElementById('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')e.target.classList.remove('show');});
+
+/* ============ 投瓶 ============ */
+function buildMake(){
+  document.getElementById('tplGrid').innerHTML=TEMPLATES.map(t=>
+    `<div class="tpl" data-t="${t.id}" style="background:${t.g}"><span>${t.emoji} ${t.name}</span></div>`).join('');
+  document.getElementById('presetRow').innerHTML=PRESETS.map((p,i)=>
+    `<div class="preset" data-p="${i}">${p.length>12?p.slice(0,12)+'…':p}</div>`).join('');
+}
+document.getElementById('tplGrid').addEventListener('click',e=>{
+  const el=e.target.closest('.tpl');if(!el)return;
+  document.querySelectorAll('.tpl').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');state.tpl=el.dataset.t;
+});
+document.getElementById('presetRow').addEventListener('click',e=>{
+  const el=e.target.closest('.preset');if(!el)return;
+  document.querySelectorAll('.preset').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');state.preset=+el.dataset.p;
+  document.getElementById('msgArea').value=PRESETS[state.preset];
+});
+const anonSwitch=document.getElementById('anonSwitch');
+anonSwitch.addEventListener('click',()=>{
+  state.anon=!state.anon;anonSwitch.classList.toggle('on',state.anon);
+  document.getElementById('anonLabel').textContent=state.anon?'匿名出海（隐藏我的身份）':'实名出海（露出我的 UID）';
+});
+document.getElementById('launchBtn').addEventListener('click',()=>{
+  const msg=document.getElementById('msgArea').value.trim();
+  if(!state.tpl){toast('先选一个展示模板吧');return;}
+  if(!msg){toast('写句话再让它出海～');return;}
+  // 起航动画（先审后漂）
+  const mask=document.getElementById('sailMask');mask.classList.add('show');
+  const big=document.getElementById('sailBig'),sm=document.getElementById('sailSm'),dots=document.getElementById('sailDots'),boat=mask.querySelector('.sail-boat');
+  boat.style.animation='none';big.textContent='ACE 正在审核你的瓶…';sm.textContent='先审后漂 · 等待启航许可，通过即入海';dots.textContent='● ○ ○';
+  setTimeout(()=>{dots.textContent='● ● ○';},700);
+  setTimeout(()=>{dots.textContent='● ● ●';big.textContent='审核通过，起航！';sm.textContent='狐狸把你的瓶推向了大海';},1500);
+  setTimeout(()=>{boat.style.animation='';},1700);
+  setTimeout(()=>{
+    mask.classList.remove('show');
+    // 沉淀我的瓶
+    const tplIdx=TEMPLATES.findIndex(t=>t.id===state.tpl);
+    state.myBottles.unshift({
+      tplIdx, msg, anon:state.anon,
+      scooped:Math.floor(Math.random()*8)+3,
+      wantKnow:Math.floor(Math.random()*5)+1,
+      msgs:Math.floor(Math.random()*3),
+      copied:Math.floor(Math.random()*3)
+    });
+    toast('🌊 你的瓶已经出海，去航行日记等回响吧');
+    switchScene('scene-log');
+    // 重置
+    state.tpl=null;state.preset=null;state.anon=false;
+    document.querySelectorAll('.tpl,.preset').forEach(x=>x.classList.remove('on'));
+    document.getElementById('msgArea').value='';anonSwitch.classList.remove('on');
+    document.getElementById('anonLabel').textContent='实名出海（露出我的 UID）';
+  },3400);
+});
+
+/* ============ 航行日记 / 回响箱 ============ */
+function renderLog(){
+  const box=document.getElementById('logContent');
+  const intro=document.getElementById('logIntro');
+  if(!state.myBottles.length){
+    intro.textContent='你还没有瓶子出海。先去做一个，丢进海里，我才能帮你带回回响～';
+    box.innerHTML=`<div class="empty-log"><span class="em">🍾</span>海面上还没有你的瓶子<div class="go" id="goMake">→ 去做一个漂流瓶</div></div>`;
+    document.getElementById('goMake').addEventListener('click',()=>switchScene('scene-make'));
+    return;
+  }
+  intro.textContent='我帮你打捞了航行途中收到的回响——你的瓶出海后，海那边的人留下了这些。';
+  const totScoop=state.myBottles.reduce((a,b)=>a+b.scooped,0);
+  const totWant=state.myBottles.reduce((a,b)=>a+b.wantKnow,0);
+  const totMsg=state.myBottles.reduce((a,b)=>a+b.msgs,0);
+  const totCopy=state.myBottles.reduce((a,b)=>a+b.copied,0);
+  box.innerHTML=`
+    <div class="echo-grid">
+      <div class="echo"><div class="v">${totScoop}</div><div class="k">次 · 你的瓶被捞起</div></div>
+      <div class="echo"><div class="v">${totWant}</div><div class="k">个「想认识你」</div></div>
+      <div class="echo"><div class="v">${totMsg}</div><div class="k">条实名留言（可追溯）</div></div>
+      <div class="echo glow"><div class="v">${totCopy}</div><div class="k">人复制了你的 UID</div></div>
+    </div>
+    ${totCopy>0?`<div class="log-intro" style="margin-bottom:18px;"><div class="fxmini">💛</div><p>有 <b>${totCopy}</b> 个人把你的 UID 带进了炫舞手游——也许此刻正在好友申请里等你。<b>去游戏看看？</b></p></div>`:''}
+    ${state.myBottles.map(b=>{
+      const t=TEMPLATES[b.tplIdx];
+      return `<div class="my-bottle">
+        <div class="ic" style="background:${t.g}">${t.emoji}</div>
+        <div class="info"><div class="t">${b.anon?'匿名瓶':'实名瓶'} · ${t.name}模板</div><div class="s">${b.msg.length>20?b.msg.slice(0,20)+'…':b.msg}</div></div>
+        <div class="stat">捞 ${b.scooped} · ♥ ${b.wantKnow}<br>留言 ${b.msgs} · UID ${b.copied}</div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+/* ============ init ============ */
+function init(){
+  resize();initScene();buildMake();
+  document.getElementById('uvCount').textContent=fmtUV(state.uvBase);
+  rafT=requestAnimationFrame(loop);
+}
+window.addEventListener('load',()=>{setTimeout(init,30);});
+init();
+</script>
+</body>
+</html>

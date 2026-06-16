@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+.codebuddy/
+.workbuddy/
+
+# Python
+__pycache__/
+*.pyc
